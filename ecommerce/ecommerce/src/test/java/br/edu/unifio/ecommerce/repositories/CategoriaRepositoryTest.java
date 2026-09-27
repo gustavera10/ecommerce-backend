@@ -1,25 +1,21 @@
 package br.edu.unifio.ecommerce.repositories;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.jdbc.Sql;
 
 import br.edu.unifio.ecommerce.entidades.Categoria;
 
 @SpringBootTest
+@Sql(scripts = "/limpar-banco.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 public class CategoriaRepositoryTest {
 
     @Autowired
     private CategoriaRepository repository;
-
-    @BeforeEach
-    void limparBanco() {
-        repository.deleteAll();
-    }
 
     @Test
     void deveBuscarCategoriaPorId() {
@@ -31,7 +27,7 @@ public class CategoriaRepositoryTest {
 
         Categoria encontrada = repository.findById(salva.getId()).orElse(null);
 
-        assertTrue(encontrada != null);
+        assertNotNull(encontrada);
         assertEquals("Eletrônicos", encontrada.getNome());
         assertEquals("Produtos eletrônicos", encontrada.getDescricao());
     }
@@ -52,7 +48,9 @@ public class CategoriaRepositoryTest {
         var categorias = repository.findAll();
 
         assertEquals(2, categorias.size());
-        assertEquals("Eletrônicos", categorias.get(0).getNome());
-        assertEquals("Roupas", categorias.get(1).getNome());
+        assertEquals(true, categorias.stream()
+                .anyMatch(c -> c.getNome().equals("Eletrônicos")));
+        assertEquals(true, categorias.stream()
+                .anyMatch(c -> c.getNome().equals("Roupas")));
     }
 }
